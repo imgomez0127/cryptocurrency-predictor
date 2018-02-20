@@ -11,6 +11,7 @@ class MarketSpider(object):
     queue_set = set()
     page_count = 1
     hist_data = "historical-data/"
+    date = {}
     def __init__(self, spider_id, data_directory,queue_link):
         self.__spider_id = spider_id
         self.__data_directory = data_directory
@@ -38,12 +39,8 @@ class MarketSpider(object):
         with open(full_filename,'rt') as f:
             for line in f:
                 MarketSpider.queue_set.add(line.replace('\n',''))
-    def crawl_page(self,queue_link,**kwargs):
-        if 'start' in kwargs and 'end' in kwargs:
-            url_parameters = {'start':kwargs['start'], 'end':kwargs['end']}
-        else:
-            url_parameters = {}
-        page = requests.get(queue_link+'historical-data/',params=url_parameters)
+    def crawl_page(self,queue_link):
+        page = requests.get(queue_link+'historical-data/',params=MarketSpider.date)
         page_soup = BeautifulSoup(page.text,"lxml")
         table_row = page_soup.find_all(['tr','td'], class_="text-right")
         crypto_trends = [trend.text.strip().split('\n') for trend in table_row]

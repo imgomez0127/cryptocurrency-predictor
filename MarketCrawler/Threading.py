@@ -8,6 +8,7 @@ if __name__ == "__main__":
     MarketSpider.startup()
     directory = "data/"
     thread_amt = 8
+    MarketSpider.date = {'start':'20180214','end':20180220}
     def worker(thread_name):
         while True:
             link = q.get()
