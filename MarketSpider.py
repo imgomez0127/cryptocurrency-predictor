@@ -50,15 +50,9 @@ class MarketSpider(object):
     def crawl_page(self,queue_link):
         page = requests.get(queue_link+'historical-data/',params=MarketSpider.date)
         page_soup = BeautifulSoup(page.text,"lxml")
-        print(page)
-        
         table_row = page_soup.find_all(['tr','td'], class_="text-right")
-
         crypto_trends = [trend.text.strip().split('\n') for trend in table_row]
-        print(len(self.__queue_link))
-
-        crypto_name = self.__queue_link[37:-1]
-
+        crypto_name = page_soup.find_all(class_='text-large')[0].contents[6].strip()
         return crypto_name,crypto_trends
 
     def export_data(self):
@@ -70,8 +64,9 @@ class MarketSpider(object):
             f = open(full_filename,'w')
             f.close()
         with open(full_filename,'w') as f:
+            f.write(str(tuple[0]) + '\n')
             f.write("Date,Open,High,Low,Close,Volume,Market Cap\n")
             for item in tuple[1]:
-                line = str(item[0].replace(',', '')).strip() + ',' + str(','.join([market_value.replace(',','') for market_value in item[1:]]).strip()) + '\n'
+                line = str(item[0].replace(',', '')).strip() + ',' + str(','.join([market_value.replace(',','.') for market_value in item[1:]]).strip()) + '\n'
                 f.write(line)
-    
+        

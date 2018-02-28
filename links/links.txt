@@ -1,0 +1,10 @@
+https://coinmarketcap.com/currencies/bitcoin/
+https://coinmarketcap.com/currencies/ethereum/
+https://coinmarketcap.com/currencies/ripple/
+https://coinmarketcap.com/currencies/bitcoin-cash/
+https://coinmarketcap.com/currencies/litecoin/
+https://coinmarketcap.com/currencies/neo/
+https://coinmarketcap.com/currencies/cardano/
+https://coinmarketcap.com/currencies/stellar/
+https://coinmarketcap.com/currencies/eos/
+https://coinmarketcap.com/currencies/iota/
