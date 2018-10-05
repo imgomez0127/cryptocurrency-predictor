@@ -8,6 +8,8 @@ import sklearn as skl
 from sklearn.preprocessing import PolynomialFeatures
 import os
 import sys
+import tensorflow as tf
+import tensorflow.keras as keras
 if __name__ == "__main__":
 	temp = '../MarketCrawler/data/%s.csv'
 	path = temp % ('bitcoin')
@@ -32,7 +34,7 @@ if __name__ == "__main__":
 	print(dates_since_release)
 	print(X.shape)
 	X = np.hstack((dates_since_release,X))
-	p = PolynomialFeatures(X.shape[1]+1)
+	p = PolynomialFeatures(X.shape[1])
 	X = p.fit_transform(X)
 	X = np.delete(X,0,axis=1)
 	print(X)
@@ -47,17 +49,28 @@ if __name__ == "__main__":
 	X = np.hstack((np.ones((X.shape[0],1)),X))
 	print(X)
 	Xtrain,yTrain = skl.utils.shuffle(X,y)
+	print("yeet")
 	print(X.shape)
-	time1 = time.time()
-	theta = lin_reg(Xtrain,yTrain,epoch=20000)
-	time2 = time.time()
+	HL_Nodes = 600
+	L = 1
+	L /= X.shape[0]
+	
+	model = keras.Sequential()
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
+	model.add(keras.layers.Dense(1,activation="linear",kernel_regularizer = keras.regularizers.l2(L)))
+	model.compile(optimizer=tf.train.AdamOptimizer(.000
+		1),loss="mse",metrics=["mae"])
+	model.fit(X,y,epochs=5000,batch_size=X.shape[0])
+	
 	print(X.shape)
-	print(calculate_price(theta,X[0]))
-	print(y[0])
-	print(costFunc(X,y,theta))
-	print(stdErr(X,y,theta))
+	# print(calculate_price(theta,X[0]))
+	# print(y[0])
+	# print(costFunc(X,y,theta))
+	# print(stdErr(X,y,theta))
 	plt.plot(range(X.shape[0]),np.flip(y))
-	predsList = [calculate_price(X[i],theta)[0][0] for i in range(X.shape[0])]
+	predsList = model.predict(X)
 	print(predsList[0])
 	print(y[0])
 	plt.plot(range(X.shape[0]),list(reversed(predsList)))
