@@ -1,3 +1,6 @@
+"""
+    A module that contains the class for a webcrawler which finds all the CryptoCurrency data hosted on coinmarketcap
+"""
 from bs4 import BeautifulSoup
 import requests
 import os.path
@@ -50,12 +53,9 @@ class MarketSpider(object):
     def crawl_page(self,queue_link):
         page = requests.get(queue_link+'historical-data/',params=MarketSpider.date)
         page_soup = BeautifulSoup(page.text,"lxml")
-        print(page)
-        
         table_row = page_soup.find_all(['tr','td'], class_="text-right")
 
         crypto_trends = [trend.text.strip().split('\n') for trend in table_row]
-        print(len(self.__queue_link))
 
         crypto_name = self.__queue_link[37:-1]
 

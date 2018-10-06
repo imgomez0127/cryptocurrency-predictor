@@ -1,3 +1,6 @@
+"""
+    A module that contains the class for a webcrawler which finds all the CryptoCurrency links on the current coinmarketcap page
+"""
 import requests
 from bs4 import BeautifulSoup
 import os.path
