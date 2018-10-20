@@ -1,5 +1,5 @@
 from MarketCrawler.thread_setup import gatherData
-from LinRegEstimation.NN import TrainModel,predict,graphModel
+from LinRegEstimation.NN import TrainModel,predict,graphModel,modelMAE
 class Menu(object):
 	def __init__(self,currency="",thread_amt=4,page_count=1):
 		self.__currency = currency
@@ -10,7 +10,11 @@ class Menu(object):
 	def createModel(self):
 		TrainModel(self.__currency)
 	def modelPredict(self,X):
-		print(predict(self.__currency,X))
+		pred = predict(self.__currency,X)
+		if(isinstance(pred,str)):
+			print(pred)
+		else:
+			print("Prediction given current inputs %.5f" % (pred))
 	def run(self):
 		while(True):
 			menuStr = '''
@@ -52,14 +56,24 @@ A: Show Model Absolute Error
 				graphModel(self.__currency)
 			elif(menuSelection.lower() == "u"):
 				valuesList = []
-				days_since_release = valuesList.append(int(input("Input the days since " + self.__currency+ " has been released: ")))
-				marketOpen = valuesList.append(int(input("Input the current market open price of " + self.__currency + ": ")))
-				marketHigh = valuesList.append(int(input("Input the current market high price of "+ self.__currency + ": " )))
-				marketLow = valuesList.append(int(input("Input the current market low price of " + self.__currency + ": ")))
-				marketVolume = valuesList.append(int(input("Input the current market volume of " + self.__currency + ": ")))
-				marketCap = valuesList.append(int(input("Input the current market cap of " + self.__currency + ": ")))
+				try:
+					days_since_release = valuesList.append(int(input("Input the days since " + self.__currency+ " has been released: ")))
+					marketOpen = valuesList.append(int(input("Input the current market open price of " + self.__currency + ": ")))
+					marketHigh = valuesList.append(int(input("Input the current market high price of "+ self.__currency + ": " )))
+					marketLow = valuesList.append(int(input("Input the current market low price of " + self.__currency + ": ")))
+					marketVolume = valuesList.append(int(input("Input the current market volume of " + self.__currency + ": ")))
+					marketCap = valuesList.append(int(input("Input the current market cap of " + self.__currency + ": ")))
+				except ValueError:
+					print("\nPlease enter a number \n")
+					continue
 				self.modelPredict(valuesList)
-				
+			elif(menuSelection.lower() == "a"):
+				Mae = modelMAE(self.__currency)
+				if(isinstance(modelMAE(self.__currency),str)):
+					print(Mae)
+				else:
+					print("Mean Absolute Error of the current model %.5f" %  (Mae))
+			
 			
 if __name__ == "__main__":
 	start = Menu()
