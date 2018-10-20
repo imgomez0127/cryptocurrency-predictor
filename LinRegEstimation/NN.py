@@ -101,7 +101,6 @@ def predict(CoinName,X):
 	prediction = model.predict(params.T)
 	return prediction[0][0]
 def graphModel(CoinName):
-	print("YEEE")
 	temp = 'data/%s.csv'
 	path = temp % (CoinName.lower())
 	if(not (os.path.exists(path))):
@@ -111,30 +110,23 @@ def graphModel(CoinName):
 		return "\nThere is no model for that CryptoCurrency"
 	df = pandas.read_csv(path)
 	X = df.drop(["Date","Close"],axis = 1)
-	print(X.shape)
 	X = np.asarray(X)
 	y = np.asarray(df["Close"].values)
 	X,y = removeNull(X,y)
-
 	dates_since_release = list(range(X.shape[0],0,-1))
 	dates_since_release = np.asarray(dates_since_release)[np.newaxis].T
 	X = np.hstack((dates_since_release,X))
-	print(X.shape)
-	print("yeet")
 	inputParams = PolynomialFeatures(X.shape[1]).fit_transform(X)
 	inputParams = np.delete(inputParams,0,axis=1)
-	print(inputParams.shape)
 	model = load_model(modelPath)
 	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
-	mu = np.asarray(normalizationParams["Mean"].values)[np.newaxis].T
-	std = np.asarray(normalizationParams["Standard Deviation"].values)[np.newaxis].T
-	print(std.shape)
-	
+	mu = np.asarray(normalizationParams["Mean"].values)[np.newaxis]
+	std = np.asarray(normalizationParams["Standard Deviation"].values)[np.newaxis]
 	mu = np.tile(mu,(inputParams.shape[0],1))
 	std = np.tile(std,(inputParams.shape[0],1))
 	inputParams = (inputParams-mu)/std
 	predsList = model.predict(inputParams)
-	
+	plt.plot(range(X.shape[0]),np.flip(y))
 	plt.plot(range(X.shape[0]),list(reversed(predsList)))
 	plt.show()
