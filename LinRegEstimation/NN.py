@@ -44,10 +44,10 @@ def TrainModel(CoinName):
 	X,y = removeNull(X,y)
 	dates_since_release = list(range(X.shape[0],0,-1))
 	dates_since_release = np.asarray(dates_since_release)[np.newaxis].T
+	X = np.hstack((dates_since_release,X))
 	p = PolynomialFeatures(X.shape[1])
 	X = p.fit_transform(X)
 	X = np.delete(X,0,axis=1)
-	X = np.hstack((dates_since_release,X))
 	mu = np.mean(X,axis=0)[np.newaxis]
 	std = np.std(X,axis=0)[np.newaxis]
 	normalizationParams = pandas.DataFrame(np.hstack((mu.T,std.T)),columns=["Mean","Standard Deviation"])
@@ -64,17 +64,13 @@ def TrainModel(CoinName):
 	model = keras.Sequential()
 	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L),input_shape=(X.shape[1],)))
 	model.add(keras.layers.Dropout(.5))
-	model.add(keras.layers.BatchNormalization())
 	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
 	model.add(keras.layers.Dropout(.5))
-	model.add(keras.layers.BatchNormalization())
 	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
 	model.add(keras.layers.Dropout(.5))
-	model.add(keras.layers.BatchNormalization())
 	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
-	model.add(keras.layers.BatchNormalization())
 	model.add(keras.layers.Dense(1,activation="linear",kernel_regularizer = keras.regularizers.l2(L)))
-	model.compile(optimizer=keras.optimizers.Adam(lr=.0001),loss="mse",metrics=["mae"])
+	model.compile(optimizer=keras.optimizers.Adam(lr=.001),loss="mse",metrics=["mae"])
 	model.fit(Xtrain,yTrain,epochs=5000,batch_size=X.shape[0],validation_data=(Xtest,yTest))
 	plt.plot(range(X.shape[0]),np.flip(y))
 	predsList = model.predict(X)
@@ -97,9 +93,8 @@ def predict(CoinName,X):
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
 		return "\nThere is no model for that CryptoCurrency"
-	inputParams = PolynomialFeatures(len(X[1:])).fit_transform(np.asarray(X[1:]).reshape((1,-1)))[0].T
+	inputParams = PolynomialFeatures(len(X)).fit_transform(np.asarray(X).reshape((1,-1)))[0].T
 	inputParams = np.delete(inputParams,0)
-	inputParams = np.hstack((X[0],inputParams))
 	model = load_model(modelPath)
 	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else 'LinRegEstimation/normalizationParams/' + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
@@ -123,9 +118,9 @@ def graphModel(CoinName):
 	X,y = removeNull(X,y)
 	dates_since_release = list(range(X.shape[0],0,-1))
 	dates_since_release = np.asarray(dates_since_release)[np.newaxis].T
+	X = np.hstack((dates_since_release,X))
 	inputParams = PolynomialFeatures(X.shape[1]).fit_transform(X)
 	inputParams = np.delete(inputParams,0,axis=1)
-	inputParams = np.hstack((dates_since_release,inputParams))
 	model = load_model(modelPath)
 	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
@@ -153,9 +148,9 @@ def modelMAE(CoinName):
 	X,y = removeNull(X,y)
 	dates_since_release = list(range(X.shape[0],0,-1))
 	dates_since_release = np.asarray(dates_since_release)[np.newaxis].T
+	X = np.hstack((dates_since_release,X))
 	inputParams = PolynomialFeatures(X.shape[1]).fit_transform(X)
 	inputParams = np.delete(inputParams,0,axis=1)
-	inputParams = np.hstack((dates_since_release,inputParams))
 	model = load_model(modelPath)
 	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
@@ -164,4 +159,4 @@ def modelMAE(CoinName):
 	mu = np.tile(mu,(inputParams.shape[0],1))
 	std = np.tile(std,(inputParams.shape[0],1))
 	inputParams = (inputParams-mu)/std
-	return model.evaluate(inputParams,y)[1]
+	return model.evaluate(inputParams,y)

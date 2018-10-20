@@ -28,3 +28,7 @@ Layers: 11,Node Count 1000, Regularization Param: 0
 Training Set MSE: 18922244, Training Set MAE: 2484 
 Layers: 11,Node Count 1000, Regularization Param: 0 
 Training Set MSE: 18947338, Training Set MAE: 2486 
+Layers: 11,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 11654515, Training Set MAE: 2156 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 5378, Training Set MAE: 47 
