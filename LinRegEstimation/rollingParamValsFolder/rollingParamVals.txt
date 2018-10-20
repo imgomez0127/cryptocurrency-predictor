@@ -1,0 +1,26 @@
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18629992, Training Set MAE: 2465 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18634136, Training Set MAE: 2465 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18623954, Training Set MAE: 2465 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18690264, Training Set MAE: 2469 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18698992, Training Set MAE: 2469 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18684746, Training Set MAE: 2469 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18665604, Training Set MAE: 2467 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18684520, Training Set MAE: 2469 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18634432, Training Set MAE: 2465 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18636732, Training Set MAE: 2465 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18735104, Training Set MAE: 2471 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18651902, Training Set MAE: 2466 
+Layers: 4,Node Count 1000, Regularization Param: 0 
+Training Set MSE: 18670482, Training Set MAE: 2468 
