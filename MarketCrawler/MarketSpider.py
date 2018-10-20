@@ -1,10 +1,11 @@
 """
     A module that contains the class for a webcrawler which finds all the CryptoCurrency data hosted on coinmarketcap
+    By Ian Gomez
 """
 from bs4 import BeautifulSoup
 import requests
 import os.path
-from LinkCrawler import LinkCrawler
+from .LinkCrawler import LinkCrawler
 import csv
 
 class MarketSpider(object):

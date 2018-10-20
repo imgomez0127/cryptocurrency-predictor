@@ -1,10 +1,11 @@
 """
    A module which gather all the data for the cryptocurrencies on coinmarket cap 
+   By Ian Gomez
 """
 import queue
 import time
 import threading
-from MarketSpider import MarketSpider
+from .MarketSpider import MarketSpider
 def gatherData(page_count = 1, thread_amt = 4):
     """
         returns the pages starting at the most popular CryptoCurrency and ends at the page_count indexed cryptocurrency
@@ -32,7 +33,7 @@ def gatherData(page_count = 1, thread_amt = 4):
             q.put(link)
 
     threads = []
-    MarketSpider.page_count = 1
+    MarketSpider.page_count = page_count
     directory = 'data/'
     MarketSpider.date = {'start':'20120428','end':time.strftime("%Y%m%d")}
     MarketSpider.startup()
