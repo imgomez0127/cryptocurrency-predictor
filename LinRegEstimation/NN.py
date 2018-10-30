@@ -57,7 +57,7 @@ def TrainModel(CoinName):
 	std = np.tile(std,(X.shape[0],1))
 	X = (X-mu)/std
 	Xtrain,yTrain = skl.utils.shuffle(X,y)
-	HL_Nodes = 1000
+	HL_Nodes = 923
 	L = 1
 	L /= X.shape[0]
 	Xtrain,Xtest,yTrain,yTest = train_test_split(X,y,test_size=0.2)
