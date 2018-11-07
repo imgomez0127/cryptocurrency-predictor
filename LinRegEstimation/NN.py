@@ -51,7 +51,7 @@ def TrainModel(CoinName):
 	mu = np.mean(X,axis=0)[np.newaxis]
 	std = np.std(X,axis=0)[np.newaxis]
 	normalizationParams = pandas.DataFrame(np.hstack((mu.T,std.T)),columns=["Mean","Standard Deviation"])
-	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
+	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
 	normalizationParams.to_csv(normsPath,index=False)
 	mu = np.tile(mu,(X.shape[0],1))
 	std = np.tile(std,(X.shape[0],1))
@@ -76,12 +76,12 @@ def TrainModel(CoinName):
 	predsList = model.predict(X)
 	modelMetrics = model.evaluate(X,y, batch_size = X.shape[0])
 	plt.plot(range(X.shape[0]),list(reversed(predsList)))
-	rollingParamsPath = "rollingParamValsFolder/rollingParamVals.txt" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else "LinRegEstimation/rollingParamValsFolder/rollingParamVals.txt"
+	rollingParamsPath = "rollingParamValsFolder/rollingParamVals.txt" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else "LinRegEstimation/rollingParamValsFolder/rollingParamVals.txt"
 	with open(rollingParamsPath,"a") as f:
 		f.write("Layers: %d,Node Count %d, Regularization Param: %d \n" % ((len(model.layers)-1),HL_Nodes,L))
 		f.write("Training Set MSE: %d, Training Set MAE: %d \n" % (modelMetrics[0],modelMetrics[1]))
 	plt.show()
-	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
+	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	save_model(model,modelPath)
 	print("Mode has been saved in %s" % (modelPath))
 def predict(CoinName,X):
@@ -90,13 +90,13 @@ def predict(CoinName,X):
 				CoinName: the name of the CryptoCurrency that is going to be evaluated
 				X: A numpy array with the values for Days Since Release, Open, High, Volume, and Market Cap
 	"""
-	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
+	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
 		return "\nThere is no model for that CryptoCurrency"
 	inputParams = PolynomialFeatures(len(X)).fit_transform(np.asarray(X).reshape((1,-1)))[0].T
 	inputParams = np.delete(inputParams,0)
 	model = load_model(modelPath)
-	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else 'LinRegEstimation/normalizationParams/' + CoinName.lower() + ".csv"
+	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd().split("/") == 'LinRegEstimation') else 'LinRegEstimation/normalizationParams/' + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
 	mu = np.asarray(normalizationParams["Mean"].values)[np.newaxis].T
 	std = np.asarray(normalizationParams["Standard Deviation"].values)[np.newaxis].T
@@ -108,7 +108,7 @@ def graphModel(CoinName):
 	path = temp % (CoinName.lower())
 	if(not (os.path.exists(path))):
 		return "There is no data for that CryptoCurrency"
-	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
+	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
 		return "\nThere is no model for that CryptoCurrency"
 	df = pandas.read_csv(path)
@@ -122,7 +122,7 @@ def graphModel(CoinName):
 	inputParams = PolynomialFeatures(X.shape[1]).fit_transform(X)
 	inputParams = np.delete(inputParams,0,axis=1)
 	model = load_model(modelPath)
-	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
+	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
 	mu = np.asarray(normalizationParams["Mean"].values)[np.newaxis]
 	std = np.asarray(normalizationParams["Standard Deviation"].values)[np.newaxis]
@@ -138,7 +138,7 @@ def modelMAE(CoinName):
 	path = temp % (CoinName.lower())
 	if(not (os.path.exists(path))):
 		return "There is no data for that CryptoCurrency"
-	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
+	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
 		return "\nThere is no model for that CryptoCurrency"
 	df = pandas.read_csv(path)
@@ -152,7 +152,7 @@ def modelMAE(CoinName):
 	inputParams = PolynomialFeatures(X.shape[1]).fit_transform(X)
 	inputParams = np.delete(inputParams,0,axis=1)
 	model = load_model(modelPath)
-	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd() == '/home/imgomez/coding/market-searcher/LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
+	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
 	mu = np.asarray(normalizationParams["Mean"].values)[np.newaxis]
 	std = np.asarray(normalizationParams["Standard Deviation"].values)[np.newaxis]
