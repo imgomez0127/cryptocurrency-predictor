@@ -6,6 +6,7 @@
 import os
 import time
 #Installed Libraries
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
@@ -15,39 +16,53 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras.models import load_model,save_model
+
 def removeNull(dataset,observedVals):
 	"""
-		Inputs: dataset - 
+		Inputs: 
+			dataset numpy.array: An array that contains the input data for the cryptocurrency
+			observedVals numpy.array: An array that contains the output data for the cryptocurrency
 	"""
 	i = 0
 	for arr in dataset:
-		if(arr[3] == '-' or arr[4] == '-'):
-			dataset = np.delete(dataset,i,0)
-			observedVals = np.delete(observedVals,i,0)
-			i -= 1
+		for j in range(len(arr)):
+			if(arr[j] == '-'):
+				dataset = np.delete(dataset,i,0)
+				observedVals = np.delete(observedVals,i,0)
+				i -= 1
 		i += 1
 	return dataset,observedVals
+def load_data(CoinName):
+	"""
+		Inputs: 
+			CoinName - name for the cryptocurrency that is being analyzed
+		Outputs:
+			X - the dataset for the input parameters for the model
+			y - the dataset for the output parameters for the model
+	"""
+	temp = 'data/%s.csv'
+	path = temp % (CoinName.lower())
+	if(not (os.path.exists(path))):
+		return "There is no data for that CryptoCurrency"
+	df = pandas.read_csv(path)
+	X = df.drop(["Date"],axis = 1)
+	X = np.asarray(X)
+	y = np.asarray(df["Close"].values)
+	dates_since_release = list(range(X.shape[0],0,-1))
+	dates_since_release = np.asarray(dates_since_release)[np.newaxis].T
+	X = np.hstack((dates_since_release,X))
+	X,y = removeNull(X,y)
+	X = PolynomialFeatures(X.shape[1]).fit_transform(X)
+	X = np.delete(X,0,axis=1)
+	y = np.delete(y,0,axis=0)
+	X = np.delete(X,X.shape[0]-1,axis=0)
+	return X,y
 def TrainModel(CoinName):
 	"""	
 		Inputs: CoinName - a string for the name of the crypotcurrency that is being analyzed
 		This Function creates a model of the data provided by the Webcrawler and trains it using a Neural Network Regression
 	"""
-	temp = 'data/%s.csv'
-	path = temp % (CoinName.lower())
-	if(not (os.path.exists(path))):
-		print("There is no data for that CryptoCurrency")
-		return None
-	df = pandas.read_csv(path)
-	X = df.drop(["Date","Close"],axis = 1)
-	X = np.asarray(X)
-	y = np.asarray(df["Close"].values)
-	X,y = removeNull(X,y)
-	dates_since_release = list(range(X.shape[0],0,-1))
-	dates_since_release = np.asarray(dates_since_release)[np.newaxis].T
-	X = np.hstack((dates_since_release,X))
-	p = PolynomialFeatures(X.shape[1])
-	X = p.fit_transform(X)
-	X = np.delete(X,0,axis=1)
+	X,y = load_data(CoinName)
 	mu = np.mean(X,axis=0)[np.newaxis]
 	std = np.std(X,axis=0)[np.newaxis]
 	normalizationParams = pandas.DataFrame(np.hstack((mu.T,std.T)),columns=["Mean","Standard Deviation"])
@@ -56,8 +71,10 @@ def TrainModel(CoinName):
 	mu = np.tile(mu,(X.shape[0],1))
 	std = np.tile(std,(X.shape[0],1))
 	X = (X-mu)/std
+	y = np.delete(y,0,axis=0)
+	X = np.delete(X,X.shape[0]-1,axis=0)
 	Xtrain,yTrain = skl.utils.shuffle(X,y)
-	HL_Nodes = 923
+	HL_Nodes = int(X.shape[1]*1.5)
 	L = 1
 	L /= X.shape[0]
 	Xtrain,Xtest,yTrain,yTest = train_test_split(X,y,test_size=0.2)
@@ -69,9 +86,13 @@ def TrainModel(CoinName):
 	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
 	model.add(keras.layers.Dropout(.5))
 	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
+	model.add(keras.layers.Dropout(.5))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
+	model.add(keras.layers.Dropout(.5))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
 	model.add(keras.layers.Dense(1,activation="linear",kernel_regularizer = keras.regularizers.l2(L)))
 	model.compile(optimizer=keras.optimizers.Adam(lr=.001),loss="mse",metrics=["mae"])
-	model.fit(Xtrain,yTrain,epochs=5000,batch_size=X.shape[0],validation_data=(Xtest,yTest))
+	model.fit(Xtrain,yTrain,epochs=10000,batch_size=X.shape[0],validation_data=(Xtest,yTest))
 	plt.plot(range(X.shape[0]),np.flip(y))
 	predsList = model.predict(X)
 	modelMetrics = model.evaluate(X,y, batch_size = X.shape[0])
@@ -83,12 +104,12 @@ def TrainModel(CoinName):
 	plt.show()
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	save_model(model,modelPath)
-	print("Mode has been saved in %s" % (modelPath))
+	print("Model has been saved in %s" % (modelPath))
 def predict(CoinName,X):
 	"""
 		Inputs:
 				CoinName: the name of the CryptoCurrency that is going to be evaluated
-				X: A numpy array with the values for Days Since Release, Open, High, Volume, and Market Cap
+				X: A numpy array with the previous day's values for the Days Since Release, Open, High, Volume, and Market Cap, and Close
 	"""
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
@@ -100,27 +121,15 @@ def predict(CoinName,X):
 	normalizationParams = pandas.read_csv(normsPath)
 	mu = np.asarray(normalizationParams["Mean"].values)[np.newaxis].T
 	std = np.asarray(normalizationParams["Standard Deviation"].values)[np.newaxis].T
-	params = (inputParams[np.newaxis].T-mu)/std
+	params = (params[np.newaxis].T-mu)/std
+	inputParams = np.delete(inputParams,inputParams.shape[0]-1,axis=0)
 	prediction = model.predict(params.T)
 	return prediction[0][0]
 def graphModel(CoinName):
-	temp = 'data/%s.csv'
-	path = temp % (CoinName.lower())
-	if(not (os.path.exists(path))):
-		return "There is no data for that CryptoCurrency"
+	X,y = load_data(CoinName)
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
 		return "\nThere is no model for that CryptoCurrency"
-	df = pandas.read_csv(path)
-	X = df.drop(["Date","Close"],axis = 1)
-	X = np.asarray(X)
-	y = np.asarray(df["Close"].values)
-	X,y = removeNull(X,y)
-	dates_since_release = list(range(X.shape[0],0,-1))
-	dates_since_release = np.asarray(dates_since_release)[np.newaxis].T
-	X = np.hstack((dates_since_release,X))
-	inputParams = PolynomialFeatures(X.shape[1]).fit_transform(X)
-	inputParams = np.delete(inputParams,0,axis=1)
 	model = load_model(modelPath)
 	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
@@ -129,29 +138,19 @@ def graphModel(CoinName):
 	mu = np.tile(mu,(inputParams.shape[0],1))
 	std = np.tile(std,(inputParams.shape[0],1))
 	inputParams = (inputParams-mu)/std
+	y = np.delete(y,0,axis=0)
+	inputParams = np.delete(inputParams,inputParams.shape[0]-1,axis=0)
+	print(y.shape)
+	print(inputParams.shape)
 	predsList = model.predict(inputParams)
-	plt.plot(range(X.shape[0]),np.flip(y))
-	plt.plot(range(X.shape[0]),list(reversed(predsList)))
+	plt.plot(range(inputParams.shape[0]),np.flip(y))
+	plt.plot(range(inputParams.shape[0]),list(reversed(predsList)))
 	plt.show()
 def modelMAE(CoinName):
-	temp = 'data/%s.csv'
-	path = temp % (CoinName.lower())
-	if(not (os.path.exists(path))):
-		return "There is no data for that CryptoCurrency"
+	model = load_model(modelPath)
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
 		return "\nThere is no model for that CryptoCurrency"
-	df = pandas.read_csv(path)
-	X = df.drop(["Date","Close"],axis = 1)
-	X = np.asarray(X)
-	y = np.asarray(df["Close"].values)
-	X,y = removeNull(X,y)
-	dates_since_release = list(range(X.shape[0],0,-1))
-	dates_since_release = np.asarray(dates_since_release)[np.newaxis].T
-	X = np.hstack((dates_since_release,X))
-	inputParams = PolynomialFeatures(X.shape[1]).fit_transform(X)
-	inputParams = np.delete(inputParams,0,axis=1)
-	model = load_model(modelPath)
 	normsPath = "normalizationParams/" + CoinName.lower() + ".csv" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else "LinRegEstimation/normalizationParams/" + CoinName.lower() + ".csv"
 	normalizationParams = pandas.read_csv(normsPath)
 	mu = np.asarray(normalizationParams["Mean"].values)[np.newaxis]

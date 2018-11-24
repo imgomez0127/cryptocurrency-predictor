@@ -20,6 +20,7 @@ def gatherData(page_count = 1, thread_amt = 4):
             spider = MarketSpider(thread_name,directory,link)
             spider.export_data()
             print(thread_name + " is working")
+            time.sleep(10)
             q.task_done()
 
     def create_threads(thread_amt):

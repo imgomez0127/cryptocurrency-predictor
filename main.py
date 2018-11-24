@@ -61,6 +61,7 @@ A: Show Model Absolute Error
 					marketOpen = valuesList.append(int(input("Input the current market open price of " + self.__currency + ": ")))
 					marketHigh = valuesList.append(int(input("Input the current market high price of "+ self.__currency + ": " )))
 					marketLow = valuesList.append(int(input("Input the current market low price of " + self.__currency + ": ")))
+					marketClose = valuesList.append(int(input("Input the current market close price of " + self.__currency + ": ")))
 					marketVolume = valuesList.append(int(input("Input the current market volume of " + self.__currency + ": ")))
 					marketCap = valuesList.append(int(input("Input the current market cap of " + self.__currency + ": ")))
 				except ValueError:
@@ -72,7 +73,7 @@ A: Show Model Absolute Error
 				if(isinstance(modelMAE(self.__currency),str)):
 					print(Mae)
 				else:
-					print("Mean Absolute Error of the current model %.5f" %  (Mae))
+					print("Mean Absolute Error of the current model %.5f" %  (Mae[1]))
 			
 			
 if __name__ == "__main__":
