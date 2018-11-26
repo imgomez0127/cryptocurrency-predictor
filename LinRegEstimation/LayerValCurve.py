@@ -8,22 +8,23 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 from NN import removeNull
-def ValidationCurve(X,y,input_layer_size,iterations = 5000,L = 0):
+def ValidationCurve(X,y,layers,input_layer_size=1300,iterations = 5000,L = 0):
 	testErrorSet = []
 	CVErrorSet = []
 	testAcc=[]
 	cvAcc=[]
-
 	X,X_test,y,y_test = train_test_split(X,y,test_size = .2)
 	print(X.shape)
-	HLNodes = np.arange(800,1600,100)
-	print(HLNodes)
+	LayersCount = np.arange(1,11,1)
 	#time.sleep(5)
-	for i in range(len(HLNodes)):
+	for i in range(len(LayersCount)):
 		reg_param = float(L/(X.shape[0]))
-		print(HLNodes)
+		print(LayersCount)
 		model = keras.Sequential()
-		model.add(keras.layers.Dense(HLNodes[i],activation="relu",kernel_regularizer=keras.regularizers.l2(reg_param),use_bias = True,input_shape=(input_layer_size,)))
+		for _ in range(LayersCount[i]):
+			model.add(keras.layers.Dense(input_layer_size,activation="relu",kernel_regularizer = keras.regularizers.l2(L),input_shape=(X.shape[1],)))
+			model.add(keras.layers.Dropout(.5))
+		model.add(keras.layers.Dense(input_layer_size,activation="relu",kernel_regularizer=keras.regularizers.l2(reg_param),use_bias = True,input_shape=(input_layer_size,)))
 		model.add(keras.layers.Dense(1,kernel_regularizer = keras.regularizers.l2(reg_param),activation="linear", use_bias = True))
 		model.compile(optimizer=keras.optimizers.Adam(.00000001),loss="mse",metrics=["mae"])
 		model.fit(X,y,epochs=iterations,batch_size=X.shape[0],validation_data=(X_test,y_test))
@@ -37,8 +38,8 @@ def ValidationCurve(X,y,input_layer_size,iterations = 5000,L = 0):
 	print("L values: " + str(L))
 	print("Test Errors for respective L:" + str(testErrorSet))
 	print("CV Errors for respective L: " + str(CVErrorSet))
-	mpl.plot(HLNodes,testErrorSet)
-	mpl.plot(HLNodes,CVErrorSet)
+	mpl.plot(LayersCount,testErrorSet)
+	mpl.plot(LayersCount,CVErrorSet)
 	mpl.show()
 if __name__ == '__main__':
 	temp = '../data/%s.csv' 
@@ -63,7 +64,7 @@ if __name__ == '__main__':
 	mu = np.tile(mu,(X.shape[0],1))
 	std = np.tile(std,(X.shape[0],1))
 	X = (X-mu)/std
-	HLNodes = 923
+	LayersCount = 923
 	classification_nodes = 10
 	print(X.shape)
 	ValidationCurve( X, y, X.shape[1])

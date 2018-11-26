@@ -43,7 +43,7 @@ def load_data(CoinName):
 	temp = 'data/%s.csv'
 	path = temp % (CoinName.lower())
 	if(not (os.path.exists(path))):
-		return "There is no data for that CryptoCurrency"
+		raise ValueError("There is no data for that CryptoCurrency")
 	df = pandas.read_csv(path)
 	X = df.drop(["Date"],axis = 1)
 	X = np.asarray(X)
@@ -62,7 +62,11 @@ def TrainModel(CoinName):
 		Inputs: CoinName - a string for the name of the crypotcurrency that is being analyzed
 		This Function creates a model of the data provided by the Webcrawler and trains it using a Neural Network Regression
 	"""
-	X,y = load_data(CoinName)
+	try:
+		X,y = load_data(CoinName)
+	except ValueError as e:
+		print(e)
+		return
 	mu = np.mean(X,axis=0)[np.newaxis]
 	std = np.std(X,axis=0)[np.newaxis]
 	normalizationParams = pandas.DataFrame(np.hstack((mu.T,std.T)),columns=["Mean","Standard Deviation"])
@@ -74,12 +78,20 @@ def TrainModel(CoinName):
 	y = np.delete(y,0,axis=0)
 	X = np.delete(X,X.shape[0]-1,axis=0)
 	Xtrain,yTrain = skl.utils.shuffle(X,y)
-	HL_Nodes = int(X.shape[1]*1.5)
+	HL_Nodes = 1300
 	L = 1
 	L /= X.shape[0]
 	Xtrain,Xtest,yTrain,yTest = train_test_split(X,y,test_size=0.2)
 	model = keras.Sequential()
 	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L),input_shape=(X.shape[1],)))
+	model.add(keras.layers.Dropout(.5))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
+	model.add(keras.layers.Dropout(.5))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
+	model.add(keras.layers.Dropout(.5))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
+	model.add(keras.layers.Dropout(.5))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
 	model.add(keras.layers.Dropout(.5))
 	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L)))
 	model.add(keras.layers.Dropout(.5))
@@ -126,7 +138,10 @@ def predict(CoinName,X):
 	prediction = model.predict(params.T)
 	return prediction[0][0]
 def graphModel(CoinName):
-	X,y = load_data(CoinName)
+	try:
+		X,y = load_data(CoinName)
+	except ValueError as e:
+		return str(e)
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
 		return "\nThere is no model for that CryptoCurrency"
@@ -147,7 +162,10 @@ def graphModel(CoinName):
 	plt.plot(range(inputParams.shape[0]),list(reversed(predsList)))
 	plt.show()
 def modelMAE(CoinName):
-	model = load_model(modelPath)
+	try:
+		X,y = load_data(CoinName)
+	except ValueError as e:
+		return str(e)
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	if(not os.path.exists(modelPath)):
 		return "\nThere is no model for that CryptoCurrency"
