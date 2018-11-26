@@ -28,7 +28,7 @@ U: Make Predicitons
 A: Show Model Absolute Error
 			'''
 			print(menuStr)
-			menuSelection = input("Select a task to do input N to exit: ")
+			menuSelection = input("Select a task to do input N to exit: ").strip()
 			if (menuSelection.lower() == "n"):
 				print("Thank You for using this! Bye!")
 				return
@@ -36,7 +36,7 @@ A: Show Model Absolute Error
 				self.crawl()
 			elif(menuSelection.lower() == "w"):
 				try:
-					newPageCount = int(input("Enter the amount of pages you want to count: "))
+					newPageCount = int(input("Enter the amount of pages you want to count: ").strip())
 				except ValueError:
 					print("\nPlease enter a number \n")
 					continue
@@ -49,7 +49,7 @@ A: Show Model Absolute Error
 					continue
 				self.__thread_amt = newThreadAmt
 			elif(menuSelection.lower() == "r"):
-				self.__currency = input("Please type in the name of the currency you want to use: ").lower()
+				self.__currency = input("Please type in the name of the currency you want to use: ").lower().strip()
 			elif(menuSelection.lower() == "t"):
 				self.createModel()
 			elif(menuSelection.lower() == "y"):
