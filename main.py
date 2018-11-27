@@ -1,3 +1,4 @@
+from MarketCrawler.MarketSpider import MarketSpider
 from MarketCrawler.thread_setup import gatherData
 from LinRegEstimation.NN import TrainModel,predict,graphModel,modelMAE
 class Menu(object):
@@ -19,13 +20,15 @@ class Menu(object):
 		while(True):
 			menuStr = '''
 Q: Crawl Pages
+R: Choose Currency
 W: Set Page Count
 E: Set Thread Amount
-R: Choose Currency
+C: Crawl Specified Currency Page
 T: Train Currency Model
 Y: Show Currency Model Graph
 U: Make Predicitons
 A: Show Model Absolute Error
+
 			'''
 			print(menuStr)
 			menuSelection = input("Select a task to do input N to exit: ").strip()
@@ -34,6 +37,13 @@ A: Show Model Absolute Error
 				return
 			elif(menuSelection.lower() == "q"):
 				self.crawl()
+			elif(menuSelection.lower() == "c"):
+				spider = MarketSpider(1,"data/","https://coinmarketcap.com/currencies/"+self.__currency + "/")
+				try:
+					spider.export_data()
+				except ValueError as e:
+					print(e)
+					continue
 			elif(menuSelection.lower() == "w"):
 				try:
 					newPageCount = int(input("Enter the amount of pages you want to count: ").strip())

@@ -51,19 +51,18 @@ class MarketSpider(object):
             for line in f:
                 MarketSpider.queue_set.add(line.replace('\n',''))
 
-    def crawl_page(self,queue_link):
-        page = requests.get(queue_link+'historical-data/',params=MarketSpider.date)
+    def crawl_page(self):
+        page = requests.get(self.__queue_link+'historical-data/',params=MarketSpider.date)
         page_soup = BeautifulSoup(page.text,"lxml")
         table_row = page_soup.find_all(['tr','td'], class_="text-right")
-
         crypto_trends = [trend.text.strip().split('\n') for trend in table_row]
-
+        if(crypto_trends == []):
+            raise ValueError("This cryptocurrency does not exist in the CoinMarketCap database")
         crypto_name = self.__queue_link[37:-1]
-
         return crypto_name,crypto_trends
 
     def export_data(self):
-        tuple = self.crawl_page(self.__queue_link)
+        tuple = self.crawl_page()
         full_filename = self.data_directory + str(tuple[0].replace('/',''))+ '.csv'
         if not os.path.exists(self.__data_directory):
             os.makedirs(self.__data_directory)

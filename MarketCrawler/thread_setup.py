@@ -39,10 +39,9 @@ def gatherData(page_count = 1, thread_amt = 4):
     MarketSpider.date = {'start':'20120428','end':time.strftime("%Y%m%d")}
     MarketSpider.startup()
     q = queue.Queue()
+    queue_links()
 
     create_threads(thread_amt)
-
-    queue_links()
 
     q.join()
 

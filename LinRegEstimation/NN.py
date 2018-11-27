@@ -78,7 +78,7 @@ def TrainModel(CoinName):
 	y = np.delete(y,0,axis=0)
 	X = np.delete(X,X.shape[0]-1,axis=0)
 	Xtrain,yTrain = skl.utils.shuffle(X,y)
-	HL_Nodes = 1300
+	HL_Nodes = X.shape[1]
 	L = 1
 	L /= X.shape[0]
 	Xtrain,Xtest,yTrain,yTest = train_test_split(X,y,test_size=0.2)
