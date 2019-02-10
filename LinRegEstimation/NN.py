@@ -121,7 +121,7 @@ def predict(CoinName,X):
 	return prediction[0][0]
 def graphModel(CoinName):
 	try:
-		X,y = load_data(CoinName)
+		inputParams,y = load_data(CoinName)
 	except ValueError as e:
 		return str(e)
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
@@ -145,7 +145,7 @@ def graphModel(CoinName):
 	plt.show()
 def modelMAE(CoinName):
 	try:
-		X,y = load_data(CoinName)
+		inputParams,y = load_data(CoinName)
 	except ValueError as e:
 		return str(e)
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 

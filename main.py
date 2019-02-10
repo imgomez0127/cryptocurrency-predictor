@@ -1,3 +1,4 @@
+import time
 from MarketCrawler.MarketSpider import MarketSpider
 from MarketCrawler.thread_setup import gatherData
 from LinRegEstimation.NN import TrainModel,predict,graphModel,modelMAE
@@ -38,6 +39,7 @@ A: Show Model Absolute Error
 			elif(menuSelection.lower() == "q"):
 				self.crawl()
 			elif(menuSelection.lower() == "c"):
+				MarketSpider.date = {'start':'20120428','end':time.strftime("%Y%m%d")}
 				spider = MarketSpider(1,"data/","https://coinmarketcap.com/currencies/"+self.__currency + "/")
 				try:
 					spider.export_data()
