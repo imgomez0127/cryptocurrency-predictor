@@ -1,3 +1,4 @@
+import time
 from MarketCrawler.MarketSpider import MarketSpider
 from MarketCrawler.thread_setup import gatherData
 from LinRegEstimation.NN import TrainModel,predict,graphModel,modelMAE
@@ -38,6 +39,7 @@ A: Show Model Absolute Error
 			elif(menuSelection.lower() == "q"):
 				self.crawl()
 			elif(menuSelection.lower() == "c"):
+				MarketSpider.date = {'start':'20120428','end':time.strftime("%Y%m%d")}
 				spider = MarketSpider(1,"data/","https://coinmarketcap.com/currencies/"+self.__currency + "/")
 				try:
 					spider.export_data()
@@ -68,12 +70,12 @@ A: Show Model Absolute Error
 				valuesList = []
 				try:
 					days_since_release = valuesList.append(int(input("Input the days since " + self.__currency+ " has been released: ")))
-					marketOpen = valuesList.append(int(input("Input the current market open price of " + self.__currency + ": ")))
-					marketHigh = valuesList.append(int(input("Input the current market high price of "+ self.__currency + ": " )))
-					marketLow = valuesList.append(int(input("Input the current market low price of " + self.__currency + ": ")))
-					marketClose = valuesList.append(int(input("Input the current market close price of " + self.__currency + ": ")))
-					marketVolume = valuesList.append(int(input("Input the current market volume of " + self.__currency + ": ")))
-					marketCap = valuesList.append(int(input("Input the current market cap of " + self.__currency + ": ")))
+					marketOpen = valuesList.append(float(input("Input the current market open price of " + self.__currency + ": ")))
+					marketHigh = valuesList.append(float(input("Input the current market high price of "+ self.__currency + ": " )))
+					marketLow = valuesList.append(float(input("Input the current market low price of " + self.__currency + ": ")))
+					marketClose = valuesList.append(float(input("Input the current market close price of " + self.__currency + ": ")))
+					marketVolume = valuesList.append(float(input("Input the current market volume of " + self.__currency + ": ")))
+					marketCap = valuesList.append(float(input("Input the current market cap of " + self.__currency + ": ")))
 				except ValueError:
 					print("\nPlease enter a number \n")
 					continue
