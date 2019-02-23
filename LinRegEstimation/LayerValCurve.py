@@ -8,7 +8,7 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 from NN import removeNull
-def ValidationCurve(X,y,layers,input_layer_size=1300,iterations = 5000,L = 0):
+def ValidationCurve(X,y,layers,input_layer_size=1300,iterations = 10000,L = 0):
 	testErrorSet = []
 	CVErrorSet = []
 	testAcc=[]
@@ -24,6 +24,7 @@ def ValidationCurve(X,y,layers,input_layer_size=1300,iterations = 5000,L = 0):
 		for _ in range(LayersCount[i]):
 			model.add(keras.layers.Dense(input_layer_size,activation="relu",kernel_regularizer = keras.regularizers.l2(L),input_shape=(X.shape[1],)))
 			model.add(keras.layers.Dropout(.5))
+			model.add(keras.layers.BatchNormalization())
 		model.add(keras.layers.Dense(input_layer_size,activation="relu",kernel_regularizer=keras.regularizers.l2(reg_param),use_bias = True,input_shape=(input_layer_size,)))
 		model.add(keras.layers.Dense(1,kernel_regularizer = keras.regularizers.l2(reg_param),activation="linear", use_bias = True))
 		model.compile(optimizer=keras.optimizers.Adam(.00000001),loss="mse",metrics=["mae"])

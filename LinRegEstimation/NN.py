@@ -78,15 +78,15 @@ def TrainModel(CoinName):
 	y = np.delete(y,0,axis=0)
 	X = np.delete(X,X.shape[0]-1,axis=0)
 	Xtrain,yTrain = skl.utils.shuffle(X,y)
-	HL_Nodes = X.shape[1]
-	L = 1
+	HL_Nodes = int(X.shape[1]*1.6)
+	L = 0
 	L /= X.shape[0]
 	Xtrain,Xtest,yTrain,yTest = train_test_split(X,y,test_size=0.2)
 	model = keras.Sequential()
-	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L),input_shape=(X.shape[1],)))
-	model.add(keras.layers.Dense(1,activation="linear",kernel_regularizer = keras.regularizers.l2(L)))
-	model.compile(optimizer=keras.optimizers.Adam(lr=.0001),loss="mse",metrics=["mae"])
-	model.fit(Xtrain,yTrain,epochs=8000,batch_size=X.shape[0],validation_data=(Xtest,yTest))
+	model.add(keras.layers.Dense(HL_Nodes,activation="relu",kernel_regularizer = keras.regularizers.l2(L),input_shape=(X.shape[1],),use_bias=True))
+	model.add(keras.layers.Dense(1,activation="linear",kernel_regularizer = keras.regularizers.l2(L),use_bias=True))
+	model.compile(optimizer=keras.optimizers.Adam(lr=.00003),loss="mse",metrics=["mae"])
+	model.fit(Xtrain,yTrain,epochs=15000,batch_size=X.shape[0],validation_data=(Xtest,yTest))
 	plt.plot(range(X.shape[0]),np.flip(y))
 	predsList = model.predict(X)
 	modelMetrics = model.evaluate(X,y, batch_size = X.shape[0])
@@ -95,10 +95,10 @@ def TrainModel(CoinName):
 	with open(rollingParamsPath,"a") as f:
 		f.write("Layers: %d,Node Count %d, Regularization Param: %d \n" % ((len(model.layers)-1),HL_Nodes,L))
 		f.write("Training Set MSE: %d, Training Set MAE: %d \n" % (modelMetrics[0],modelMetrics[1]))
-	plt.show()
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
 	save_model(model,modelPath)
 	print("Model has been saved in %s" % (modelPath))
+	plt.show()
 def predict(CoinName,X):
 	"""
 		Inputs:
@@ -121,7 +121,7 @@ def predict(CoinName,X):
 	return prediction[0][0]
 def graphModel(CoinName):
 	try:
-		X,y = load_data(CoinName)
+		inputParams,y = load_data(CoinName)
 	except ValueError as e:
 		return str(e)
 	modelPath = 'Models/' + CoinName.lower() + ".h5" if (os.getcwd().split("/")[-1] == 'LinRegEstimation') else 'LinRegEstimation/Models/' + CoinName.lower() + ".h5" 
